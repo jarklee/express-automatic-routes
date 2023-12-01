@@ -230,13 +230,15 @@ function extract(
   }
 }
 
-function withErrorHandle(func: Middleware | Route) {
-  if (func.arguments.length === 3) {
-    return func
-  }
-  return function errorHandle(req: Request, res: Response, next: NextFunction) {
+function withErrorHandle(func: Function) {
+  return async function errorHandle(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+    ...rest: any
+  ) {
     try {
-      return func(req, res, next)
+      return await func(req, res, next, ...rest)
     } catch (e) {
       next(e)
     }
