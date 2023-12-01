@@ -31,8 +31,6 @@ export type ValidMethods =
   | 'UNLOCK'
   | 'UNSUBSCRIBE'
 
-
-
 const validMethods = [
   'checkout',
   'copy',
@@ -97,13 +95,19 @@ function scan(
   const combined = path.join(baseDir, current)
   const combinedStat = fs.statSync(combined)
 
-  if (combinedStat.isDirectory()) {
+  if (combinedStat.isDirectory() && isAcceptableDir(combined)) {
     for (const entry of fs.readdirSync(combined)) {
       scan(express, baseDir, path.join(current, entry), log)
     }
   } else if (isAcceptableFile(combined, combinedStat)) {
     autoload(express, combined, pathToUrl(current), log)
   }
+}
+
+function isAcceptableDir(file: string): boolean {
+  return (
+    !path.basename(file).startsWith('.') && !path.basename(file).startsWith('_')
+  )
 }
 
 function isAcceptableFile(file: string, stat: fs.Stats): boolean {
@@ -201,11 +205,11 @@ function extract(
     middleware === undefined
       ? []
       : Array.isArray(middleware)
-        ? middleware
-        : [middleware]
+      ? middleware
+      : [middleware]
 
   if (typeof routeOptions === 'function') {
-    return [...routeMiddleware, routeOptions]
+    return [...routeMiddleware, withErrorHandle(routeOptions)]
   } else {
     routeOptions.middleware =
       routeOptions.middleware === undefined ? [] : routeOptions.middleware
@@ -214,10 +218,27 @@ function extract(
       return [
         ...routeMiddleware,
         ...routeOptions.middleware,
-        routeOptions.handler,
+        withErrorHandle(routeOptions.handler),
       ]
     } else {
-      return [...routeMiddleware, routeOptions.middleware, routeOptions.handler]
+      return [
+        ...routeMiddleware,
+        routeOptions.middleware,
+        withErrorHandle(routeOptions.handler),
+      ]
+    }
+  }
+}
+
+function withErrorHandle(func: Middleware | Route) {
+  if (func.arguments.length === 3) {
+    return func
+  }
+  return function errorHandle(req: Request, res: Response, next: NextFunction) {
+    try {
+      return func(req, res, next)
+    } catch (e) {
+      next(e)
     }
   }
 }
@@ -285,7 +306,7 @@ export default function (
   try {
     scan(express, dirPath, '', options.log)
   } catch (error) {
-    log && console.error(error.message)
+    log && console.error((error as any).message)
 
     throw error
   }

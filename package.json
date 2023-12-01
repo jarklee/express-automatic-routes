@@ -1,5 +1,5 @@
 {
-    "name": "express-automatic-routes",
+    "name": "jk-express-automatic-routes",
     "version": "1.1.0",
     "description": "fastest way to map directories to URLs in express",
     "main": "dist/index.js",
@@ -17,7 +17,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+ssh://git@github.com/GiovanniCardamone/express-automatic-routes.git"
+        "url": "https://github.com/jarklee/express-automatic-routes.git"
     },
     "keywords": [
         "express",
@@ -30,9 +30,9 @@
     "author": "Giovanni Cardamone <g.cardamone2@gmail.com>",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/GiovanniCardamone/express-automatic-routes/issues"
+        "url": "https://github.com/jarklee/express-automatic-routes/issues"
     },
-    "homepage": "https://github.com/GiovanniCardamone/express-automatic-routes#readme",
+    "homepage": "https://github.com/jarklee/express-automatic-routes#readme",
     "devDependencies": {
         "@types/express": "^4.17.7",
         "@types/node": "^14.0.27",
